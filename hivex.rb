@@ -1,22 +1,15 @@
 class Hivex < Formula
-  desc 'This is a self-contained library for reading and writing Windows Registry "hive" binary files.'
+  desc "Self-contained library for reading/writing Windows Registry hive binary files"
   homepage "http://www.libguestfs.org"
   url "http://download.libguestfs.org/hivex/hivex-1.3.18.tar.gz"
   sha256 "8a1e788fd9ea9b6e8a99705ebd0ff8a65b1bdee28e319c89c4a965430d0a7445"
 
-  bottle do
-    root_url "https://github.com/Amar1729/homebrew-formulae/releases/download/hivex-1.3.18"
-    cellar :any
-    sha256 "151558b4141e3e66badbb6b63582e2f3d80cecbdd4fadfc7808fac522fa97ba4" => :mojave
-  end
-
-  # note : building hivex from source requires libxml, but not homebrew build?
+  # NOTE: building hivex from source requires libxml, but not homebrew libxml?
   depends_on "readline"
-  # depends_on "python"
 
   resource "testhive" do
-      url "https://github.com/libguestfs/hivex/raw/1a95c03b5741326128e6c21823ab4f0e363eeb0f/images/special"
-      sha256 "cc558c3628f8bf0a69e2c61eb5151492026b6d5041372cc90e20cbb880537271"
+    url "https://github.com/libguestfs/hivex/raw/1a95c03b5741326128e6c21823ab4f0e363eeb0f/images/special"
+    sha256 "cc558c3628f8bf0a69e2c61eb5151492026b6d5041372cc90e20cbb880537271"
   end
 
   patch do
@@ -25,9 +18,6 @@ class Hivex < Formula
   end
 
   def install
-    ENV["LDFLAGS"] = "-L/usr/local/opt/readline/lib"
-    ENV["CPPFLAGS"] = "-I/usr/local/opt/readline/include"
-
     ENV.prepend_path "PERL5LIB", lib/"perl5"
 
     args = [
@@ -37,24 +27,18 @@ class Hivex < Formula
       "--sysconfdir=#{etc}",
       "--disable-ocaml",
       "--disable-ruby",
+      "--disable-perl",
+      "--disable-python",
     ]
-
-    # no idea how to make this work
-    #ENV["PYTHON"] = "/usr/local/bin/python3"
-    #ENV.prepend_path "PKG_CONFIG_PATH", `/usr/local/bin/python3-config --prefix`.chomp + "/lib/pkgconfig"
-    #args << "--with-python-installdir=#{lib}/python3.7/site-packages"
-    args << "--disable-python"
 
     system "./configure", *args
 
     system "make"
-    # we need perl.IOStringy (I don't know how to do this in homebrew formula)
-    #system "make", "check" # actually fails
+    system "make", "check"
     system "make", "install"
 
-    # doesnt work yet
-    #(bin/"hivexregedit").write_env_script(libexec/"bin/hivexregedit", :PERL5LIB => ENV["PERL5LIB"])
-    rm bin/"hivexregedit"
+    # TODO: not sure how to fix hivexregedit
+    # (bin/"hivexregedit").write_env_script(libexec/"bin/hivexregedit", :PERL5LIB => ENV["PERL5LIB"])
   end
 
   test do
@@ -62,26 +46,26 @@ class Hivex < Formula
     resource("testhive").stage(testpath)
 
     # hivexget
-    assert_equal '"zero"=dword:00000000', shell_output("hivexget #{testpath}/special zero", 0).chomp
+    assert_equal '"zero"=dword:00000000', shell_output("hivexget #{testpath}/special zero").chomp
 
     # hivexregedit
-    reg_check = <<~EOS
-Windows Registry Editor Version 5.00
-
-[\zerokey]
-"zeroval"=dword:00000000
-    EOS
-    #reg_output = shell_output("hivexregedit --export #{testpath}/special zero", 0).chomp
-    #assert_equal reg_check reg_output
+    # reg_check = <<~EOS
+    #         Windows Registry Editor Version 5.00
+    #   #{"      "}
+    #         [\zerokey]
+    #         "zeroval"=dword:00000000
+    # EOS
+    # reg_output = shell_output("hivexregedit --export #{testpath}/special zero", 0).chomp
+    # assert_equal reg_check reg_output
 
     # hivexsh
     (testpath/"test.sh").write <<~EOS
-    #/usr/local/bin/hivexsh -f
-    load #{testpath}/special
-    cd zero
-    lsval
-    quit
+      #/usr/local/bin/hivexsh -f
+      load #{testpath}/special
+      cd zero
+      lsval
+      quit
     EOS
-    assert_equal '"zero"=dword:00000000', shell_output("#{bin}/hivexsh -f test.sh", 0).chomp
+    assert_equal '"zero"=dword:00000000', shell_output("#{bin}/hivexsh -f test.sh").chomp
   end
 end
