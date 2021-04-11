@@ -1,8 +1,33 @@
+require "digest"
+
+class OsxfuseRequirement < Requirement
+  fatal true
+
+  satisfy(build_env: false) { self.class.binary_osxfuse_installed? }
+
+  def self.binary_osxfuse_installed?
+    File.exist?("/usr/local/include/osxfuse/fuse/fuse.h") &&
+      !File.symlink?("/usr/local/include/osxfuse/fuse")
+  end
+
+  env do
+    unless HOMEBREW_PREFIX.to_s == "/usr/local"
+      ENV.append_path "HOMEBREW_LIBRARY_PATHS", "/usr/local/lib"
+      ENV.append_path "HOMEBREW_INCLUDE_PATHS", "/usr/local/include/fuse"
+    end
+  end
+
+  def message
+    "macFUSE is required to build libguestfs. Please run `brew install --cask macfuse` first."
+  end
+end
+
 class LibguestfsAT132 < Formula
   desc "Set of tools for accessing and modifying virtual machine (VM) disk images"
-  homepage "http://libguestfs.org/"
-  url "http://libguestfs.org/download/1.32-stable/libguestfs-1.32.6.tar.gz"
+  homepage "https://libguestfs.org/"
+  url "https://libguestfs.org/download/1.32-stable/libguestfs-1.32.6.tar.gz"
   sha256 "bbf4e2d63a9d5968769abfe5c0b38b9e4b021b301ca0359f92dbb2838ad85321"
+  revision 1
 
   depends_on "amar1729/libguestfs/automake-1.15" => :build
   depends_on "autoconf" => :build
@@ -20,9 +45,19 @@ class LibguestfsAT132 < Formula
   depends_on "xz"
   depends_on "yajl"
 
+  on_macos do
+    depends_on OsxfuseRequirement => :build
+  end
+
+  # the linux support is a bit of a guess, since homebrew doesn't currently build bottles for libvirt
+  # that means brew test-bot's --build-bottle will fail under ubuntu-latest runners
+  on_linux do
+    depends_on "libfuse"
+  end
+
   # Since we can't build an appliance, the recommended way is to download a fixed one.
   resource "fixed_appliance" do
-    url "http://libguestfs.org/download/binaries/appliance/appliance-1.30.1.tar.xz"
+    url "https://libguestfs.org/download/binaries/appliance/appliance-1.30.1.tar.xz"
     sha256 "12d88227de9921cc40949b1ca7bbfc2f6cd6e685fa6ed2be3f21fdef97661be2"
   end
 
