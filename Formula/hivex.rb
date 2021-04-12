@@ -1,7 +1,7 @@
 class Hivex < Formula
   desc "Self-contained library for reading/writing Windows Registry hive binary files"
-  homepage "http://www.libguestfs.org"
-  url "http://download.libguestfs.org/hivex/hivex-1.3.18.tar.gz"
+  homepage "https://www.libguestfs.org"
+  url "https://download.libguestfs.org/hivex/hivex-1.3.18.tar.gz"
   sha256 "8a1e788fd9ea9b6e8a99705ebd0ff8a65b1bdee28e319c89c4a965430d0a7445"
 
   # NOTE: building hivex from source requires libxml, but not homebrew libxml?
