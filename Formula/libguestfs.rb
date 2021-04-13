@@ -1,14 +1,8 @@
 class Libguestfs < Formula
+  desc "Tools for accessing and modifying virtual machine disk images"
   homepage "https://libguestfs.org/"
-  desc "tools for accessing and modifying virtual machine disk images"
   url "https://download.libguestfs.org/1.40-stable/libguestfs-1.40.2.tar.gz"
   sha256 "ad6562c48c38e922a314cb45a90996843d81045595c4917f66b02a6c2dfe8058"
-
-  patch do
-    # program_name and open_memstream.c
-    url "https://gist.githubusercontent.com/Amar1729/541e66dff14fec0100931b64f78b8f38/raw/27a13176be00ab7e3a13f3eec536b60709c30043/libguestfs-gnulib.patch"
-    sha256 "621269d78db5cf15e2961189d7714cfb3b6687bdd4d0d4be6b94b4d866e43c7e"
-  end
 
   depends_on "autoconf" => :build
   depends_on "automake" => :build
@@ -32,6 +26,18 @@ class Libguestfs < Formula
   depends_on "xz"
   depends_on "yajl"
 
+  # Since we can't build an appliance, the recommended way is to download a fixed one.
+  resource "fixed_appliance" do
+    url "https://download.libguestfs.org/binaries/appliance/appliance-1.40.1.tar.xz"
+    sha256 "1aaf0bef18514b8e9ebd0c6130ed5188b6f6a7052e4891d5f3620078f48563e6"
+  end
+
+  patch do
+    # program_name and open_memstream.c
+    url "https://gist.githubusercontent.com/Amar1729/541e66dff14fec0100931b64f78b8f38/raw/27a13176be00ab7e3a13f3eec536b60709c30043/libguestfs-gnulib.patch"
+    sha256 "621269d78db5cf15e2961189d7714cfb3b6687bdd4d0d4be6b94b4d866e43c7e"
+  end
+
   # The two required gnulib patches have been reported to gnulib mailing list, but with little effect so far.
   # patch do
   #   # Add an implementation of open_memstream for BSD/Mac.
@@ -47,12 +53,6 @@ class Libguestfs < Formula
   #   sha256 "d17d1962b98a3418a335915de8a2da219e4598d42c24555bbbc5b0c1177dd38c"
   # end
 
-  # Since we can't build an appliance, the recommended way is to download a fixed one.
-  resource "fixed_appliance" do
-    url "https://download.libguestfs.org/binaries/appliance/appliance-1.40.1.tar.xz"
-    sha256 "1aaf0bef18514b8e9ebd0c6130ed5188b6f6a7052e4891d5f3620078f48563e6"
-  end
-
   def install
     ENV["FUSE_CFLAGS"] = "-D_FILE_OFFSET_BITS=64 -D_DARWIN_USE_64_BIT_INODE -I/usr/local/include/osxfuse/fuse"
     ENV["FUSE_LIBS"] = "-losxfuse -pthread -liconv"
@@ -63,7 +63,7 @@ class Libguestfs < Formula
       jansson
       hivex
     ].each do |ext|
-      ENV.prepend_path "PKG_CONFIG_PATH", "/usr/local/opt/#{ext}/lib/pkgconfig"
+      ENV.prepend_path "PKG_CONFIG_PATH", Formula[ext].opt_lib/"pkgconfig"
     end
 
     args = [
@@ -93,9 +93,9 @@ class Libguestfs < Formula
     # fix for known race condition: https://bugzilla.redhat.com/show_bug.cgi?id=1614502
     ENV.deparallelize { system "make", "-C", "builder", "index-parse.c" }
     system "make", "-C", "builder", "index-scan.c"
-    #ENV.deparallelize { system "make", "-C", "builder" }
+    # ENV.deparallelize { system "make", "-C", "builder" }
     system "make"
-    #system "make", "check" # 5 FAILs :/
+    # system "make", "check" # 5 FAILs :/
 
     ENV["REALLY_INSTALL"] = "yes"
     system "make", "install"
@@ -122,13 +122,13 @@ class Libguestfs < Formula
         export CPPFLAGS="-I#{prefix}/include"
 
       For pkg-config to find libguestfs you may need to set:
-        export PKG_CONFIG_PATH="/usr/local/opt/libguestfs/lib/pkgconfig"
+        export PKG_CONFIG_PATH="#{prefix}/lib/pkgconfig"
 
     EOS
   end
 
   test do
     ENV["LIBGUESTFS_PATH"] = "#{prefix}/var/libguestfs-appliance"
-    system "#{prefix}/bin/libguestfs-test-tool", "-t 180"
+    system "#{bin}/libguestfs-test-tool", "-t 180"
   end
 end
