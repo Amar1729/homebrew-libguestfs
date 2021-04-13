@@ -1,5 +1,5 @@
 class Libguestfs < Formula
-  homepage "http://libguestfs.org/"
+  homepage "https://libguestfs.org/"
   desc "tools for accessing and modifying virtual machine disk images"
 
   stable do
@@ -112,7 +112,7 @@ class Libguestfs < Formula
 
   # Since we can't build an appliance, the recommended way is to download a fixed one.
   resource "fixed_appliance" do
-    url "http://download.libguestfs.org/binaries/appliance/appliance-1.40.1.tar.xz"
+    url "https://download.libguestfs.org/binaries/appliance/appliance-1.40.1.tar.xz"
     sha256 "1aaf0bef18514b8e9ebd0c6130ed5188b6f6a7052e4891d5f3620078f48563e6"
   end
 
