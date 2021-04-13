@@ -1,3 +1,27 @@
+require "digest"
+
+class OsxfuseRequirement < Requirement
+  fatal true
+
+  satisfy(build_env: false) { self.class.binary_osxfuse_installed? }
+
+  def self.binary_osxfuse_installed?
+    File.exist?("/usr/local/include/osxfuse/fuse/fuse.h") &&
+      !File.symlink?("/usr/local/include/osxfuse/fuse")
+  end
+
+  env do
+    unless HOMEBREW_PREFIX.to_s == "/usr/local"
+      ENV.append_path "HOMEBREW_LIBRARY_PATHS", "/usr/local/lib"
+      ENV.append_path "HOMEBREW_INCLUDE_PATHS", "/usr/local/include/fuse"
+    end
+  end
+
+  def message
+    "macFUSE is required to build libguestfs. Please run `brew install --cask macfuse` first."
+  end
+end
+
 class Libguestfs < Formula
   desc "Tools for accessing and modifying virtual machine disk images"
   homepage "https://libguestfs.org/"
@@ -25,6 +49,16 @@ class Libguestfs < Formula
   depends_on "readline"
   depends_on "xz"
   depends_on "yajl"
+
+  on_macos do
+    depends_on OsxfuseRequirement => :build
+  end
+
+  # the linux support is a bit of a guess, since homebrew doesn't currently build bottles for libvirt
+  # that means brew test-bot's --build-bottle will fail under ubuntu-latest runners
+  on_linux do
+    depends_on "libfuse"
+  end
 
   # Since we can't build an appliance, the recommended way is to download a fixed one.
   resource "fixed_appliance" do
