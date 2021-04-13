@@ -29,6 +29,11 @@ class LibguestfsAT132 < Formula
   sha256 "bbf4e2d63a9d5968769abfe5c0b38b9e4b021b301ca0359f92dbb2838ad85321"
   revision 1
 
+  bottle do
+    root_url "https://github.com/Amar1729/homebrew-libguestfs/releases/download/libguestfs@1.32-1.32.6_1"
+    sha256 catalina: "962dcf74820362072d65e0e26ba217bd46c7f85a72a77fa3954d92bda602b2f7"
+  end
+
   depends_on "amar1729/libguestfs/automake-1.15" => :build
   depends_on "autoconf" => :build
   depends_on "libtool" => :build
