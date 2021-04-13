@@ -4,8 +4,10 @@ class Hivex < Formula
   url "https://download.libguestfs.org/hivex/hivex-1.3.18.tar.gz"
   sha256 "8a1e788fd9ea9b6e8a99705ebd0ff8a65b1bdee28e319c89c4a965430d0a7445"
 
-  # NOTE: building hivex from source requires libxml, but not homebrew libxml?
+  depends_on "gettext"
   depends_on "readline"
+
+  uses_from_macos "libxml2"
 
   resource "testhive" do
     url "https://github.com/libguestfs/hivex/raw/1a95c03b5741326128e6c21823ab4f0e363eeb0f/images/special"
@@ -31,11 +33,17 @@ class Hivex < Formula
       "--disable-python",
     ]
 
+    # TODO: this works fine on macOS, but on Linux the make process keeps picking up system
+    # libxml2 instead of homebrew
+    # (the configure script doesn't seem to support any vars/flags for disabling xml support)
+    # absolutely disable xml
+    inreplace "configure", "have_libxml2=yes", "have_libxml2=no"
+
     system "./configure", *args
 
     system "make"
-    system "make", "check"
     system "make", "install"
+    system "make", "check"
 
     # TODO: not sure how to fix hivexregedit
     # (bin/"hivexregedit").write_env_script(libexec/"bin/hivexregedit", :PERL5LIB => ENV["PERL5LIB"])
