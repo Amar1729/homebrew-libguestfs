@@ -25,8 +25,8 @@ end
 class Libguestfs < Formula
   desc "Tools for accessing and modifying virtual machine disk images"
   homepage "https://libguestfs.org/"
-  url "https://download.libguestfs.org/1.40-stable/libguestfs-1.40.2.tar.gz"
-  sha256 "ad6562c48c38e922a314cb45a90996843d81045595c4917f66b02a6c2dfe8058"
+  url "https://download.libguestfs.org/1.44-stable/libguestfs-1.44.1.tar.gz"
+  sha256 "72b7dcdd32da1c17c932cf5a0a70b3bd68bc93e94828ad66a539f2e616adb025"
 
   depends_on "autoconf" => :build
   depends_on "automake" => :build
@@ -52,6 +52,9 @@ class Libguestfs < Formula
   depends_on "readline"
   depends_on "xz"
 
+  uses_from_macos "libxml2"
+  uses_from_macos "ncurses"
+
   on_macos do
     depends_on OsxfuseRequirement => :build
   end
@@ -69,11 +72,11 @@ class Libguestfs < Formula
     sha256 "1aaf0bef18514b8e9ebd0c6130ed5188b6f6a7052e4891d5f3620078f48563e6"
   end
 
-  patch do
-    # program_name and open_memstream.c
-    url "https://gist.githubusercontent.com/Amar1729/541e66dff14fec0100931b64f78b8f38/raw/27a13176be00ab7e3a13f3eec536b60709c30043/libguestfs-gnulib.patch"
-    sha256 "621269d78db5cf15e2961189d7714cfb3b6687bdd4d0d4be6b94b4d866e43c7e"
-  end
+  # patch do
+  #   # program_name and open_memstream.c
+  #   url "https://gist.githubusercontent.com/Amar1729/541e66dff14fec0100931b64f78b8f38/raw/27a13176be00ab7e3a13f3eec536b60709c30043/libguestfs-gnulib.patch"
+  #   sha256 "621269d78db5cf15e2961189d7714cfb3b6687bdd4d0d4be6b94b4d866e43c7e"
+  # end
 
   # The two required gnulib patches have been reported to gnulib mailing list, but with little effect so far.
   # patch do
@@ -128,11 +131,11 @@ class Libguestfs < Formula
 
     inreplace "common/mlstdutils/std_utils.ml", "cmp = compare", "cmp = Pervasives.compare"
 
+    # Build fails with just 'make install'
     # fix for known race condition: https://bugzilla.redhat.com/show_bug.cgi?id=1614502
-    ENV.deparallelize { system "make", "-C", "builder", "index-parse.c" }
-    system "make", "-C", "builder", "index-scan.c"
-    # regenerate with aclocal because the makefile has an autoconf version mismatch (how???)
-    system "aclocal"
+    # ENV.deparallelize { system "make", "-C", "builder", "index-parse.c" }
+    # system "make", "-C", "builder", "index-scan.c"
+    # ENV.deparallelize { system "make", "-C", "builder" }
     system "make"
     system "make", "check" # 5 FAILs :/
 
