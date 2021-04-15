@@ -4,6 +4,12 @@ class Hivex < Formula
   url "https://download.libguestfs.org/hivex/hivex-1.3.18.tar.gz"
   sha256 "8a1e788fd9ea9b6e8a99705ebd0ff8a65b1bdee28e319c89c4a965430d0a7445"
 
+  bottle do
+    root_url "https://github.com/Amar1729/homebrew-libguestfs/releases/download/hivex-1.3.18"
+    sha256 cellar: :any, catalina:     "c82ceb42b9f16511962e30b8597fbdac845c8fa2d19c3b8808e1dd4cbb526c88"
+    sha256               x86_64_linux: "8c6d6212a33f0f9b2c30ae1df7df52298c487903cc51ca96546bab411c6a8871"
+  end
+
   depends_on "gettext"
   depends_on "readline"
 
