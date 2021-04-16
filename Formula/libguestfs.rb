@@ -28,8 +28,6 @@ class Libguestfs < Formula
   url "https://download.libguestfs.org/1.40-stable/libguestfs-1.40.2.tar.gz"
   sha256 "ad6562c48c38e922a314cb45a90996843d81045595c4917f66b02a6c2dfe8058"
 
-  depends_on "autoconf" => :build
-  depends_on "automake" => :build
   depends_on "bison" => :build # macOS bison is one minor revision too old
   depends_on "gnu-sed" => :build # some of the makefiles expect gnu sed functionality
   depends_on "libtool" => :build
@@ -39,16 +37,18 @@ class Libguestfs < Formula
   depends_on "augeas"
   depends_on "cdrtools"
   depends_on "coreutils"
-  depends_on "gettext"
+  depends_on "cpio"
+  depends_on "flex"
   depends_on "glib"
+  depends_on "gperf"
   depends_on "hivex"
   depends_on "jansson"
+  depends_on "libmagic"
   depends_on "libvirt"
   depends_on "pcre"
   depends_on "qemu"
   depends_on "readline"
   depends_on "xz"
-  depends_on "yajl"
 
   on_macos do
     depends_on OsxfuseRequirement => :build
@@ -57,6 +57,7 @@ class Libguestfs < Formula
   # the linux support is a bit of a guess, since homebrew doesn't currently build bottles for libvirt
   # that means brew test-bot's --build-bottle will fail under ubuntu-latest runners
   on_linux do
+    depends_on "libcap"
     depends_on "libfuse"
   end
 
@@ -131,8 +132,7 @@ class Libguestfs < Formula
     system "make"
     # system "make", "check" # 5 FAILs :/
 
-    ENV["REALLY_INSTALL"] = "yes"
-    system "make", "install"
+    system "make", "INSTALLDIRS=vendor", "DESTDIR=#{libexec}", "install"
 
     libguestfs_path = "#{prefix}/var/libguestfs-appliance"
     mkdir_p libguestfs_path
