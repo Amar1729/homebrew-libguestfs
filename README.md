@@ -40,3 +40,6 @@ Originally based off of work done [zchee's homebrew tap](https://github.com/zche
 That tap has only been updated to support `libguestfs 1.30` (current version as of spring 2021 is 1.40).
 
 Building libguestfs inside Homebrew is a bit of a pain, due to differences in the macOS build as well as certain homebrew restrictions over time (e.g. removing the `osxfuse` formula in early 2021) so this tap will try to include previous versions of libguestfs as well as the current version (as `libguestfs.rb`).
+
+other work:
+https://listman.redhat.com/archives/libguestfs/2015-February/msg00040.html
