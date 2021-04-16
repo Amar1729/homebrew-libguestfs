@@ -28,6 +28,8 @@ class Libguestfs < Formula
   url "https://download.libguestfs.org/1.40-stable/libguestfs-1.40.2.tar.gz"
   sha256 "ad6562c48c38e922a314cb45a90996843d81045595c4917f66b02a6c2dfe8058"
 
+  depends_on "autoconf" => :build
+  depends_on "automake" => :build
   depends_on "bison" => :build # macOS bison is one minor revision too old
   depends_on "gnu-sed" => :build # some of the makefiles expect gnu sed functionality
   depends_on "libtool" => :build
@@ -124,15 +126,17 @@ class Libguestfs < Formula
 
     system "./configure", *args
 
-    # Build fails with just 'make install'
+    inreplace "common/mlstdutils/std_utils.ml", "cmp = compare", "cmp = Pervasives.compare"
+
     # fix for known race condition: https://bugzilla.redhat.com/show_bug.cgi?id=1614502
     ENV.deparallelize { system "make", "-C", "builder", "index-parse.c" }
     system "make", "-C", "builder", "index-scan.c"
-    # ENV.deparallelize { system "make", "-C", "builder" }
+    # regenerate with aclocal because the makefile has an autoconf version mismatch (how???)
+    system "aclocal"
     system "make"
-    # system "make", "check" # 5 FAILs :/
+    system "make", "check" # 5 FAILs :/
 
-    system "make", "INSTALLDIRS=vendor", "DESTDIR=#{libexec}", "install"
+    system "make", "INSTALLDIRS=vendor", "DESTDIR=#{buildpath}", "install"
 
     libguestfs_path = "#{prefix}/var/libguestfs-appliance"
     mkdir_p libguestfs_path
