@@ -127,9 +127,11 @@ class Libguestfs < Formula
       "--disable-python",
     ]
 
-    system "./configure", *args
+    ENV["HAVE_RPM_FALSE"] = "#"
+    ENV["HAVE_DPKG_FALSE"] = "#"
+    ENV["HAVE_PACMAN_FALSE"] = "#"
 
-    inreplace "common/mlstdutils/std_utils.ml", "cmp = compare", "cmp = Pervasives.compare"
+    system "./configure", *args
 
     # Build fails with just 'make install'
     # fix for known race condition: https://bugzilla.redhat.com/show_bug.cgi?id=1614502
