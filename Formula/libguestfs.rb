@@ -28,6 +28,11 @@ class Libguestfs < Formula
   url "https://libguestfs.org/download/1.32-stable/libguestfs-1.32.6.tar.gz"
   sha256 "bbf4e2d63a9d5968769abfe5c0b38b9e4b021b301ca0359f92dbb2838ad85321"
 
+  bottle do
+    root_url "https://github.com/Amar1729/homebrew-libguestfs/releases/download/libguestfs-1.32.6"
+    sha256 catalina: "70ab150bb49f13e4312b1543328a5f7109d3d7acacc6c21e13cef9b1e10aaaa1"
+  end
+
   depends_on "#{@tap}/automake-1.15" => :build
   depends_on "autoconf" => :build
   depends_on "libtool" => :build
