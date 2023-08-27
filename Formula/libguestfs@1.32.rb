@@ -34,6 +34,8 @@ class LibguestfsAT132 < Formula
     sha256 catalina: "962dcf74820362072d65e0e26ba217bd46c7f85a72a77fa3954d92bda602b2f7"
   end
 
+  deprecate! date: "2023-08-27", because: :does_not_build
+
   depends_on "amar1729/libguestfs/automake-1.15" => :build
   depends_on "autoconf" => :build
   depends_on "libtool" => :build

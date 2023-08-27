@@ -33,7 +33,9 @@ class Libguestfs < Formula
     sha256 catalina: "70ab150bb49f13e4312b1543328a5f7109d3d7acacc6c21e13cef9b1e10aaaa1"
   end
 
-  depends_on "#{@tap}/automake-1.15" => :build
+  deprecate! date: "2023-08-27", because: :does_not_build
+
+  depends_on "amar1729/libguestfs/automake-1.15" => :build
   depends_on "autoconf" => :build
   depends_on "libtool" => :build
   depends_on "pkg-config" => :build
