@@ -2,6 +2,10 @@
 
 https://libguestfs.org/
 
+Monsters be here: formulae in this tap are deprecated, as they don't build on macOS anymore. Good luck if you need libguestfs on macOS D:
+
+----
+
 ## How do I install these formulae?
 
 `brew install amar1729/libguestfs/<formula>`
